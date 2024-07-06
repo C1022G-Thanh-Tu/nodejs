@@ -3,7 +3,7 @@ const compression = require("compression");
 const express = require("express");
 const { default: helmet } = require("helmet");
 const morgan = require("morgan");
-require("./dbs/init.mongodb");
+require("./db/init.mongodb");
 const app = express();
 
 // init middleware
