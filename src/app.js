@@ -1,8 +1,8 @@
 require("dotenv").config()
-const compression = require("compression");
 const express = require("express");
-const { default: helmet } = require("helmet");
 const morgan = require("morgan");
+const compression = require("compression");
+const { default: helmet } = require("helmet");
 require("./db/init.mongodb");
 const app = express();
 
