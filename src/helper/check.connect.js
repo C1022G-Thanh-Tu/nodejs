@@ -12,21 +12,21 @@ const countConnect = () => {
 
 // check overload
 const checkOverload = () => {
-  // setInterval(() => {
-  //   const numbConnection = mongoose.connections.length;
-  //   const numbCores = os.cpus().length;
-  //   const memoryUsage = process.memoryUsage().rss;
+  setInterval(() => {
+    const numbConnection = mongoose.connections.length;
+    const numbCores = os.cpus().length;
+    const memoryUsage = process.memoryUsage().rss;
 
-  //   // Example maximum number of connection based on number osf cores
-  //   const maxConnections = numbCores * 5;
+    // Example maximum number of connection based on number osf cores
+    const maxConnections = numbCores * 5;
 
-  //   console.log(`Active connection: ${numbConnection}`);
-  //   console.log("Memory use: ", memoryUsage / 1024 / 1024, "MB");
+    console.log(`Active connection: ${numbConnection}`);
+    console.log("Memory use: ", memoryUsage / 1024 / 1024, "MB");
 
-  //   if (numbConnection > maxConnections) {
-  //     console.log("Connection overload detected");
-  //   }
-  // }, FIVE_SECONDS); // Monitor every 5s
+    if (numbConnection > maxConnections) {
+      console.log("Connection overload detected");
+    }
+  }, FIVE_SECONDS); // Monitor every 5s
 };
 
 module.exports = {
