@@ -6,6 +6,7 @@ const RoleShop = require("../enum/RoleEnum");
 const crypto = require("crypto");
 const KeyTokenService = require("./keyToken.service");
 const { createTokenPair } = require("../auth/authUtils");
+const { getInfoData } = require("../utils/index");
 
 class AccessService {
   static signUp = async ({ name, email, password }) => {
@@ -31,7 +32,16 @@ class AccessService {
         // create private key, public key
         const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
           modulusLength: 4096,
+          publicKeyEncoding: {
+            type: "pkcs1",
+            format: "pem",
+          },
+          privateKeyEncoding: {
+            type: "pkcs1",
+            format: "pem",
+          },
         });
+        // Public Key CryptoGraphy Standards
 
         console.log({ privateKey, publicKey }); // save collection KeyStore
 
@@ -50,7 +60,7 @@ class AccessService {
         // Create Token pair
         const tokens = await createTokenPair(
           { userId: newShop._id, email },
-          publicKey,
+          publicKeyString,
           privateKey
         );
 
@@ -59,7 +69,10 @@ class AccessService {
         return {
           code: 201,
           metadata: {
-            shop: newShop,
+            shop: getInfoData({
+              fields: ["_id", "name", "email"],
+              objects: newShop,
+            }),
             tokens,
           },
         };
