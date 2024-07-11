@@ -2,7 +2,7 @@
 
 //!mdbgum
 
-const { model, Schema, Types } = require("mongoose"); 
+const { model, Schema } = require("mongoose"); 
 
 const DOCUMENT_NAME = "Shop";
 const COLLECTION_NAME = "Shops";
@@ -31,7 +31,7 @@ const shopSchema = new Schema(
       default: "inactive",
     },
     verify: {
-      type: Types.Boolean,
+      type: Schema.Types.Boolean,
       default: false,
     },
     roles: {
