@@ -6,7 +6,8 @@ class AccessController {
   signUp = async (req, res, next) => {
     try {
       console.log(`[P]::signUp::`, req.body);
-      return res.status(201).json(await AccessService.signUp(req.body));
+      const { status, message } = await AccessService.signUp(req.body);
+      return res.status(status).json({ message });
     } catch (error) {
       next(error);
     }

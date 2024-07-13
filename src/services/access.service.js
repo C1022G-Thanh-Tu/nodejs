@@ -15,7 +15,7 @@ class AccessService {
       const holderShop = await shopModel.findOne({ email }).lean();
       if (holderShop) {
         return {
-          code: "xxx",
+          status: 409,
           message: "Email existed",
         };
       }
@@ -30,44 +30,37 @@ class AccessService {
 
       if (newShop) {
         // create private key, public key
-        const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
-          modulusLength: 4096,
-          publicKeyEncoding: {
-            type: "pkcs1",
-            format: "pem",
-          },
-          privateKeyEncoding: {
-            type: "pkcs1",
-            format: "pem",
-          },
-        });
+        const privateKey = crypto.randomBytes(64).toString("hex");
+        const publicKey = crypto.randomBytes(64).toString("hex");
+
         // Public Key CryptoGraphy Standards
 
         console.log({ privateKey, publicKey }); // save collection KeyStore
 
-        const publicKeyString = await KeyTokenService.createKeyToken({
+        const savedPublicKey = await KeyTokenService.createKeyToken({
           userId: newShop._id,
           publicKey,
+          privateKey,
         });
 
-        if (!publicKeyString) {
+        if (!savedPublicKey) {
           return {
-            code: "xxx",
-            message: "publicKeyString error",
+            status: 404,
+            message: "savedPublicKey have no value",
           };
         }
 
         // Create Token pair
         const tokens = await createTokenPair(
           { userId: newShop._id, email },
-          publicKeyString,
+          publicKey,
           privateKey
         );
 
         console.log("Create tokens success: ", tokens);
 
         return {
-          code: 201,
+          status: 201,
           metadata: {
             shop: getInfoData({
               fields: ["_id", "name", "email"],
@@ -79,14 +72,15 @@ class AccessService {
       }
 
       return {
-        code: 200,
+        status: 200,
         metadata: null,
       };
+
     } catch (error) {
+      console.error(error);
       return {
-        code: "xxx",
+        status: 400,
         message: error.message,
-        status: "error",
       };
     }
   };
