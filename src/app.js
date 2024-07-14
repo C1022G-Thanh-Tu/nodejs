@@ -20,5 +20,12 @@ require("./db/init.mongodb");
 app.use("", require("./routes"))
 
 // handle error
+app.use((error, req, res, next) => {
+    const statusCode = error.status || 500
+    return res.status(statusCode).json({
+        code: statusCode,
+        message: error.message
+    })
+})
 
 module.exports = app;
