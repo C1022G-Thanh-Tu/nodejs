@@ -50,9 +50,31 @@ class ForbiddenError extends ErrorResponse {
   }
 }
 
+class InternalServerError extends ErrorResponse {
+  constructor(
+    message = StatusMsgEnum.INTERNAL_SERVER_ERROR,
+    status = StatusCodeEnum.INTERNAL_SERVER_ERROR
+  ) {
+    super(message);
+    this.status = status;
+  }
+}
+
+class UnauthorizedError extends ErrorResponse {
+  constructor(
+    message = StatusMsgEnum.UNAUTHORIZED,
+    status = StatusCodeEnum.UNAUTHORIZED
+  ) {
+    super(message);
+    this.status = status;
+  }
+}
+
 module.exports = {
   ConflictError,
   BadRequestError,
   NotFoundError,
-  ForbiddenError
+  ForbiddenError,
+  InternalServerError,
+  UnauthorizedError
 };

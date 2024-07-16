@@ -3,17 +3,61 @@
 const shopModel = require("../models/shop.model");
 const bcrypt = require("bcrypt");
 const RoleShopEnum = require("../enum/RoleEnum");
-const crypto = require("crypto");
 const KeyTokenService = require("./keyToken.service");
-const { createTokenPair } = require("../auth/authUtils");
 const { getInfoData } = require("../utils/index");
+const { createTokens } = require("../utils/createTokens");
 const {
   BadRequestError,
   ConflictError,
+  UnauthorizedError,
   NotFoundError,
 } = require("../core/error.response");
+const { findByEmail } = require("../services/shop.service");
 
 class AccessService {
+  /*
+    1/ Check email in DBs
+    2/ Check password
+    3/ Create Access Token and Refresh Token
+    4/ Generates tokens
+    5/ Get data after login success
+  */
+
+  static login = async ({ email, password, refreshToken = null }) => {
+    // Step 1
+    const saveShop = await findByEmail({ email });
+
+    // Step 2
+    const isValidPassword = await bcrypt.compare(password, saveShop.password);
+    if (!isValidPassword) {
+      throw new UnauthorizedError("Wrong Password");
+    }
+
+    // Step 3 + 4
+    // create private key, public key, generate tokens
+    const { tokens, publicKey, privateKey } = await createTokens(saveShop._id, email);
+    
+    const savedPublicKey = await KeyTokenService.createKeyToken({
+      userId: saveShop._id,
+      publicKey,
+      privateKey,
+      refreshToken: tokens.refreshToken,
+    });
+
+    if (!savedPublicKey) {
+      throw new NotFoundError("Not found savedPublicKey");
+    }
+
+    // Step 5
+    return {
+      shop: getInfoData({
+        fields: ["_id", "name", "email"],
+        objects: saveShop,
+      }),
+      tokens,
+    };
+  };
+
   static signUp = async ({ name, email, password }) => {
     // step 1: check email exist
     const existedShop = await shopModel.findOne({ email }).lean();
@@ -32,43 +76,29 @@ class AccessService {
     if (!newShop) {
       throw new BadRequestError("No data save");
     }
-
-    // create private key, public key
-    const privateKey = crypto.randomBytes(64).toString("hex");
-    const publicKey = crypto.randomBytes(64).toString("hex");
-
-    // Public Key CryptoGraphy Standards
-
-    console.log({ privateKey, publicKey }); // save collection KeyStore
+    // Create Token pair
+    const { tokens, publicKey, privateKey } = await createTokens(
+      newShop._id,
+      email
+    );
 
     const savedPublicKey = await KeyTokenService.createKeyToken({
       userId: newShop._id,
       publicKey,
       privateKey,
+      refreshToken: tokens.refreshToken,
     });
 
     if (!savedPublicKey) {
       throw new NotFoundError("Not found savedPublicKey");
     }
 
-    // Create Token pair
-    const tokens = await createTokenPair(
-      { userId: newShop._id, email },
-      publicKey,
-      privateKey
-    );
-
-    console.log("Create tokens success: ", tokens);
-
     return {
-      status: 201,
-      metadata: {
-        shop: getInfoData({
-          fields: ["_id", "name", "email"],
-          objects: newShop,
-        }),
-        tokens,
-      },
+      shop: getInfoData({
+        fields: ["_id", "name", "email"],
+        objects: newShop,
+      }),
+      tokens,
     };
   };
 }
