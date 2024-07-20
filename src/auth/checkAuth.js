@@ -2,11 +2,7 @@
 
 const { findById } = require("../services/apiKey.service");
 const { ForbiddenError, NotFoundError } = require("../core/error.response");
-
-const HEADER = {
-  API_KEY: "x-api-key",
-  AUTHORIZATION: "authorization",
-};
+const HEADER = require("../enum/HeaderEnum")
 
 const apiKey = async (req, res, next) => {
   const key = req.headers[HEADER.API_KEY]?.toString();

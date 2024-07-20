@@ -3,7 +3,12 @@
 const keyTokenModel = require("../models/keyToken.model");
 
 class KeyTokenService {
-  static createKeyToken = async ({ userId, publicKey, privateKey, refreshToken }) => {
+  static createKeyToken = async ({
+    userId,
+    publicKey,
+    privateKey,
+    refreshToken,
+  }) => {
     const filter = { user: userId }; // Tìm kiếm theo userId
     const update = {
       publicKey,
@@ -19,6 +24,14 @@ class KeyTokenService {
     );
 
     return tokens.publicKey || null;
+  };
+
+  static findByUserId = async (userId) => {
+    return await keyTokenModel.findOne({ user: userId }).lean();
+  };
+
+  static removeKeyById = async (id) => {
+    return await keyTokenModel.deleteOne(id);
   };
 }
 

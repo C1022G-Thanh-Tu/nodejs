@@ -3,7 +3,7 @@
 const express = require("express");
 const router = express.Router();
 const { apiKey, permissions } = require("../auth/checkAuth");
-const { asyncHandler } = require("../utils/exceptionHandler");
+const { asyncHandler } = require("../helper/exceptionHandler");
 
 // check apiKey
 router.use(asyncHandler(apiKey));

@@ -9,11 +9,18 @@ class AccessController {
     new OkResponse({
       metadata: serviceRes,
     }).send(res);
-  }
+  };
 
   signUp = async (req, res, next) => {
     const serviceRes = await AccessService.signUp(req.body);
     new CreatedResponse({
+      metadata: serviceRes,
+    }).send(res);
+  };
+
+  logout = async (req, res, next) => {
+    const serviceRes = await AccessService.logout(req.keyStore);
+    new OkResponse({
       metadata: serviceRes,
     }).send(res);
   };

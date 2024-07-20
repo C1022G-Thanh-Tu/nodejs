@@ -15,6 +15,12 @@ const {
 const { findByEmail } = require("../services/shop.service");
 
 class AccessService {
+  static logout = async (keyStore) => {
+    const delKey = await KeyTokenService.removeKeyById(keyStore._id);
+    console.log({ delKey });
+    return delKey;
+  };
+
   /*
     1/ Check email in DBs
     2/ Check password
@@ -35,8 +41,11 @@ class AccessService {
 
     // Step 3 + 4
     // create private key, public key, generate tokens
-    const { tokens, publicKey, privateKey } = await createTokens(saveShop._id, email);
-    
+    const { tokens, publicKey, privateKey } = await createTokens(
+      saveShop._id,
+      email
+    );
+
     const savedPublicKey = await KeyTokenService.createKeyToken({
       userId: saveShop._id,
       publicKey,
