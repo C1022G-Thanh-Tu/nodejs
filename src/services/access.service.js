@@ -11,10 +11,71 @@ const {
   ConflictError,
   UnauthorizedError,
   NotFoundError,
+  ForbiddenError,
 } = require("../core/error.response");
 const { findByEmail } = require("../services/shop.service");
+const { verifyJWT, createTokenPair } = require("../auth/authUtils");
 
 class AccessService {
+  /*
+    1/ Check token used
+  */
+  static handleRefreshToken = async (refreshToken) => {
+    // Check token is used or not
+    const foundToken = await KeyTokenService.findByRefreshTokenUsed(
+      refreshToken
+    );
+    if (foundToken) {
+      // Check user
+      const { userId, email } = await verifyJWT(
+        refreshToken,
+        foundToken.privateKey
+      );
+
+      console.log({ "1st": { userId, email } });
+
+      // Delete token in KeyStore
+      await KeyTokenService.deleteKeyById(userId);
+
+      throw new ForbiddenError("Something wrong happens! Please re-login");
+    }
+    const holderToken = await KeyTokenService.findByRefreshToken(refreshToken);
+    if (!holderToken) {
+      throw new UnauthorizedError("Account does not registered 1");
+    }
+    const { userId, email } = await verifyJWT(
+      refreshToken,
+      holderToken.privateKey
+    );
+    console.log({ "2nd": { userId, email } });
+    const foundShop = await findByEmail({ email });
+    if (!foundShop) {
+      throw new UnauthorizedError("Account does not registered 2");
+    }
+
+    // create new tokens
+    const tokens = await createTokenPair(
+      { userId, email },
+      holderToken.publicKey,
+      holderToken.privateKey
+    );
+    console.log(refreshToken);
+    // update tokens
+    await holderToken.updateOne({
+      $set: {
+        refreshToken: tokens.refreshToken,
+      },
+      $addToSet: {
+        refreshTokensUsed: refreshToken,
+      },
+    });
+
+    return {
+      user: { userId, email },
+      tokens,
+    };
+  };
+
   static logout = async (keyStore) => {
     const delKey = await KeyTokenService.removeKeyById(keyStore._id);
     console.log({ delKey });
@@ -28,7 +89,6 @@ class AccessService {
     4/ Generates tokens
     5/ Get data after login success
   */
-
   static login = async ({ email, password, refreshToken = null }) => {
     // Step 1
     const saveShop = await findByEmail({ email });
