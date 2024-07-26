@@ -32,8 +32,6 @@ class AccessService {
         foundToken.privateKey
       );
 
-      console.log({ "1st": { userId, email } });
-
       // Delete token in KeyStore
       await KeyTokenService.deleteKeyById(userId);
 
@@ -47,7 +45,7 @@ class AccessService {
       refreshToken,
       holderToken.privateKey
     );
-    console.log({ "2nd": { userId, email } });
+
     const foundShop = await findByEmail({ email });
     if (!foundShop) {
       throw new UnauthorizedError("Account does not registered 2");
@@ -59,7 +57,7 @@ class AccessService {
       holderToken.publicKey,
       holderToken.privateKey
     );
-    console.log(refreshToken);
+
     // update tokens
     await holderToken.updateOne({
       // $set sẽ cập nhật lại giá trị
