@@ -62,9 +62,11 @@ class AccessService {
     console.log(refreshToken);
     // update tokens
     await holderToken.updateOne({
+      // $set sẽ cập nhật lại giá trị
       $set: {
         refreshToken: tokens.refreshToken,
       },
+      // $addToSet sẽ thêm giá trị vào 1 mảng nếu giá trị chưa có trong mảng
       $addToSet: {
         refreshTokensUsed: refreshToken,
       },

@@ -9,17 +9,21 @@ class KeyTokenService {
     privateKey,
     refreshToken,
   }) => {
-    const filter = { user: userId }; // Tìm kiếm theo userId
-    const update = {
+    // Lọc theo userId
+    const filter = { user: userId };
+    // updateModel là một đối tượng chứa các giá trị sẽ được cập nhật hoặc thêm vào document.
+    const updateModel = {
       publicKey,
       privateKey,
       refreshTokensUsed: [],
       refreshToken,
     };
-    const options = { upsert: true, new: true }; // Kiểm tra nếu document chưa có thì insert mới, có rồi thì update
+    // upsert: true: Nếu không tìm thấy document nào khớp với filter, MongoDB sẽ tạo một document mới với giá trị trong update.
+    // new: true: Tùy chọn này yêu cầu MongoDB trả về document mới sau khi cập nhật.
+    const options = { upsert: true, new: true };
     const tokens = await keyTokenModel.findOneAndUpdate(
       filter,
-      update,
+      updateModel,
       options
     );
 
