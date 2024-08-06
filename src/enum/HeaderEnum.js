@@ -2,6 +2,7 @@ const HEADER = {
     API_KEY: "x-api-key",
     CLIENT_ID: "x-client-id",
     ACCESS_TOKEN: "access_token",
+    REFRESH_TOKEN: "refresh_token"
 };
 
 Object.freeze(HEADER)

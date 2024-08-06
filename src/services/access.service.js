@@ -14,52 +14,37 @@ const {
   ForbiddenError,
 } = require("../core/error.response");
 const { findByEmail } = require("../services/shop.service");
-const { verifyJWT, createTokenPair } = require("../auth/authUtils");
+const { createTokenPair } = require("../auth/authUtils");
 
 class AccessService {
   /*
     1/ Check token used
   */
-  static handleRefreshToken = async (refreshToken) => {
-    // Check token is used or not
-    const foundToken = await KeyTokenService.findByRefreshTokenUsed(
-      refreshToken
-    );
-    if (foundToken) {
-      // Check user
-      const { userId, email } = await verifyJWT(
-        refreshToken,
-        foundToken.privateKey
-      );
-
-      // Delete token in KeyStore
+  static handleRefreshToken = async ({refreshToken, user, keyStore}) => {
+    const { userId, email } = user;
+    if (keyStore.refreshTokensUsed.includes(refreshToken)) {
       await KeyTokenService.deleteKeyById(userId);
-
       throw new ForbiddenError("Something wrong happens! Please re-login");
     }
-    const holderToken = await KeyTokenService.findByRefreshToken(refreshToken);
-    if (!holderToken) {
-      throw new UnauthorizedError("Account does not registered 1");
+
+    if (keyStore.refreshToken != refreshToken) {
+      throw new UnauthorizedError("Invalid refresh token");
     }
-    const { userId, email } = await verifyJWT(
-      refreshToken,
-      holderToken.privateKey
-    );
 
     const foundShop = await findByEmail({ email });
     if (!foundShop) {
-      throw new UnauthorizedError("Account does not registered 2");
+      throw new UnauthorizedError("Account does not registered");
     }
 
     // create new tokens
     const tokens = await createTokenPair(
       { userId, email },
-      holderToken.publicKey,
-      holderToken.privateKey
+      keyStore.publicKey,
+      keyStore.privateKey
     );
 
     // update tokens
-    await holderToken.updateOne({
+    await keyStore.updateOne({
       // $set sẽ cập nhật lại giá trị
       $set: {
         refreshToken: tokens.refreshToken,
@@ -71,7 +56,7 @@ class AccessService {
     });
 
     return {
-      user: { userId, email },
+      user,
       tokens,
     };
   };

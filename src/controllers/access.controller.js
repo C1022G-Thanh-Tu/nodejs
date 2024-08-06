@@ -5,7 +5,11 @@ const { CreatedResponse, OkResponse } = require("../core/success.response");
 
 class AccessController {
   handleRefreshToken = async (req, res, next) => {
-    const serviceRes = await AccessService.handleRefreshToken(req.body.refreshToken);
+    const serviceRes = await AccessService.handleRefreshToken({
+      refreshToken: req.refreshToken,
+      user: req.user,
+      keyStore: req.keyStore,
+    });
     new OkResponse({
       metadata: serviceRes,
     }).send(res);

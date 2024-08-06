@@ -52,6 +52,24 @@ const authentication = asyncHandler(async (req, res, next) => {
   }
 
   // Step 3
+  const refreshToken = req.headers[HEADER.REFRESH_TOKEN];
+
+  if (refreshToken) {
+    try {
+      const decodeUser = JWT.verify(refreshToken, keyStore.privateKey);
+      if (userId !== decodeUser.userId) {
+        throw new UnauthorizedError("Invalid User");
+      }
+      req.keyStore = keyStore;
+      req.user = decodeUser;
+      req.refreshToken = refreshToken;
+      return next();
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
   const accessToken = req.headers[HEADER.ACCESS_TOKEN];
   if (!accessToken) {
     throw new UnauthorizedError("Invalid Request");
@@ -63,11 +81,13 @@ const authentication = asyncHandler(async (req, res, next) => {
       throw new UnauthorizedError("Invalid User");
     }
     req.keyStore = keyStore;
+    req.user = decodeUser;
     return next();
   } catch (error) {
     console.log(error);
     throw error;
   }
+
 });
 
 const verifyJWT = async (token, privateKey) => {
@@ -77,5 +97,5 @@ const verifyJWT = async (token, privateKey) => {
 module.exports = {
   createTokenPair,
   authentication,
-  verifyJWT
+  verifyJWT,
 };
