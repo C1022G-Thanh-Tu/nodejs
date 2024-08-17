@@ -13,27 +13,12 @@ const keyTokenSchema = new Schema(
       required: true,
       ref: "Shop",
     },
-    privateKey: {
-      type: String,
-      required: true,
-    },
-    publicKey: {
-      type: String,
-      required: true,
-    },
-    refreshTokensUsed: {
-      type: Array,
-      default: [],
-    },
-    refreshToken: {
-      type: String,
-      required: true,
-    },
+    privateKey: { type: String, required: true },
+    publicKey: { type: String, required: true },
+    refreshTokensUsed: { type: Array, default: [] },
+    refreshToken: { type: String, required: true },
   },
-  {
-    timestamps: true,
-    collection: COLLECTION_NAME,
-  }
+  { timestamps: true, collection: COLLECTION_NAME }
 );
 
 //Export the model
