@@ -69,6 +69,9 @@ const furnitureSchema = new Schema(
   { collection: "Furniture", timestamps: true }
 );
 
+// create index for search
+productSchema.index({ product_name: "text", product_description: "text" });
+
 //Export the model
 module.exports = {
   product: model("Product", productSchema),

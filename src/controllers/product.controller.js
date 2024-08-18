@@ -17,12 +17,6 @@ class ProductController {
     }).send(res);
   };
 
-  /**
-   * @description get all drafts shop
-   * @param {Number} limit
-   * @param {Number} skip
-   * @return {JSON}
-   */
   findAllDraftsForShop = async (req, res, next) => {
     const serviceRes = await ProductServiceV2.findAllDraftsForShop({
       product_shop: req.user.userId,
@@ -56,6 +50,14 @@ class ProductController {
       product_id: req.params.id,
       product_shop: req.user.userId,
     });
+    new OkResponse({
+      metadata: serviceRes,
+    }).send(res);
+  };
+
+  searchProduct = async (req, res, next) => {
+    console.log(req.params);
+    const serviceRes = await ProductServiceV2.searchProduct(req.params);
     new OkResponse({
       metadata: serviceRes,
     }).send(res);

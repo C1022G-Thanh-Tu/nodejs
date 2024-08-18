@@ -6,6 +6,8 @@ const { asyncHandler } = require("../../helper/exceptionHandler");
 const { authentication } = require("../../auth/authUtils");
 const productController = require("../../controllers/product.controller");
 
+router.get("/search/:keySearch", asyncHandler(productController.searchProduct));
+
 // authentication
 router.use(authentication)
 
