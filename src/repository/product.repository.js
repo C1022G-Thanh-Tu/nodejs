@@ -7,6 +7,33 @@ const findAllDraftsForShop = async ({ query, limit, skip }) => {
 };
 
 const publishProductByShop = async ({ product_shop, product_id }) => {
+  const isDraft = false;
+  const isPublished = true;
+  return await updatePublished({
+    product_shop,
+    product_id,
+    isDraft,
+    isPublished,
+  });
+};
+
+const unPublishProductByShop = async ({ product_shop, product_id }) => {
+  const isDraft = true;
+  const isPublished = false;
+  return await updatePublished({
+    product_shop,
+    product_id,
+    isDraft,
+    isPublished,
+  });
+};
+
+const updatePublished = async ({
+  product_shop,
+  product_id,
+  isDraft,
+  isPublished,
+}) => {
   const foundShop = await product.findOne({
     product_shop,
     _id: product_id,
@@ -16,8 +43,8 @@ const publishProductByShop = async ({ product_shop, product_id }) => {
     return null;
   }
 
-  foundShop.isDraft = false;
-  foundShop.isPublished = true;
+  foundShop.isDraft = isDraft;
+  foundShop.isPublished = isPublished;
 
   const { modifiedCount } = await foundShop.updateOne(foundShop); // modifiedCount => update success: 1 / update failed: 0
   return modifiedCount;
@@ -40,5 +67,6 @@ const queryProduct = async ({ query, limit, skip }) => {
 module.exports = {
   findAllDraftsForShop,
   publishProductByShop,
+  unPublishProductByShop,
   findAllPublishedForShop,
 };

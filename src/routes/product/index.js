@@ -12,6 +12,7 @@ router.use(authentication)
 // logout
 router.post("", asyncHandler(productController.createProduct));
 router.post("/published/:id", asyncHandler(productController.publishProductByShop));
+router.post("/unpublished/:id", asyncHandler(productController.unPublishProductByShop));
 router.get("/drafts/all", asyncHandler(productController.findAllDraftsForShop));
 router.get("/published/all", asyncHandler(productController.findAllPublishedForShop));
 

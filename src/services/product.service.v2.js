@@ -10,6 +10,7 @@ const { BadRequestError } = require("../core/error.response");
 const {
   findAllDraftsForShop,
   publishProductByShop,
+  unPublishProductByShop,
   findAllPublishedForShop
 } = require("../repository/product.repository");
 
@@ -31,6 +32,10 @@ class ProductFactory {
 
   static async publishProductByShop({ product_shop, product_id }) {
     return await publishProductByShop({ product_shop, product_id });
+  }
+
+  static async unPublishProductByShop({ product_shop, product_id }) {
+    return await unPublishProductByShop({ product_shop, product_id });
   }
 
   static async findAllDraftsForShop({ product_shop, limit = 50, skip = 0 }) {

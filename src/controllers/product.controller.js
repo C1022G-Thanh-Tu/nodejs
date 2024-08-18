@@ -50,6 +50,16 @@ class ProductController {
       metadata: serviceRes,
     }).send(res);
   };
+
+  unPublishProductByShop = async (req, res, next) => {
+    const serviceRes = await ProductServiceV2.unPublishProductByShop({
+      product_id: req.params.id,
+      product_shop: req.user.userId,
+    });
+    new OkResponse({
+      metadata: serviceRes,
+    }).send(res);
+  };
 }
 
 module.exports = new ProductController();
